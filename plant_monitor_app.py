@@ -16,13 +16,15 @@ Note: `meta_ai_api` no requiere clave API, pero depende de endpoints
 internos de meta.ai que podrían cambiar. Si Meta libera una API oficial
 para tu región, considera pasarte a `llama-api-client`. Para Firestore,
 configura la variable de entorno `GOOGLE_APPLICATION_CREDENTIALS` apuntando
-al archivo JSON de la cuenta de servicio con permisos de lectura (ruta
-relativa a este archivo o absoluta).
+al archivo JSON de la cuenta de servicio (ruta relativa o absoluta), o bien
+define `FIREBASE_CREDENTIALS_JSON` con el contenido del archivo cuando el
+servicio no pueda acceder al sistema de archivos (por ejemplo, en Vercel).
 """
 
 import asyncio
 import json
 import os
+import tempfile
 from typing import Any, Tuple
 
 from fastapi import FastAPI, HTTPException
@@ -58,6 +60,48 @@ app = FastAPI(
 
 
 _firestore_client: Any | None = None
+_service_account_path: str | None = None
+
+
+def _ensure_service_account_credentials() -> str | None:
+    """Resolve the path to the service account JSON, creating a temp file if needed."""
+
+    global _service_account_path
+
+    if _service_account_path:
+        return _service_account_path
+
+    cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if cred_path:
+        if not os.path.isabs(cred_path):
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            cred_path = os.path.join(base_dir, cred_path)
+        if not os.path.exists(cred_path):
+            raise RuntimeError(
+                "El archivo de credenciales configurado en GOOGLE_APPLICATION_CREDENTIALS "
+                f"no existe: {cred_path}"
+            )
+        _service_account_path = cred_path
+        return _service_account_path
+
+    cred_json = os.getenv("FIREBASE_CREDENTIALS_JSON")
+    if cred_json:
+        try:
+            parsed = json.loads(cred_json)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(
+                "La variable FIREBASE_CREDENTIALS_JSON debe contener un JSON válido."
+            ) from exc
+
+        with tempfile.NamedTemporaryFile("w", delete=False, suffix=".json") as tmp:
+            json.dump(parsed, tmp)
+            tmp.flush()
+            _service_account_path = tmp.name
+
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = _service_account_path
+        return _service_account_path
+
+    return None
 
 
 def get_firestore_client() -> firestore.Client:
@@ -70,17 +114,8 @@ def get_firestore_client() -> firestore.Client:
     try:
         firebase_admin.get_app()
     except ValueError:
-        cred_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        cred_path = _ensure_service_account_credentials()
         if cred_path:
-            if not os.path.isabs(cred_path):
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                cred_path = os.path.join(base_dir, cred_path)
-            if not os.path.exists(cred_path):
-                raise RuntimeError(
-                    "El archivo de credenciales configurado en "
-                    "GOOGLE_APPLICATION_CREDENTIALS no existe: "
-                    f"{cred_path}"
-                )
             cred = credentials.Certificate(cred_path)
             firebase_admin.initialize_app(cred)
         else:
