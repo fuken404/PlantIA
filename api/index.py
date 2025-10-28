@@ -14,8 +14,12 @@ fastapi_app.add_middleware(
     allow_headers=["*"],
 )
 
-mangum_handler = Mangum(fastapi_app)
+_mangum_adapter = Mangum(fastapi_app)
 
 
 def handler(event, context):
-    return mangum_handler(event, context)
+    return _mangum_adapter(event, context)
+
+
+# Expose the FastAPI app for local runs if needed
+app = fastapi_app
