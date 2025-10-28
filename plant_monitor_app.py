@@ -101,7 +101,10 @@ def _ensure_service_account_credentials() -> str | None:
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = _service_account_path
         return _service_account_path
 
-    return None
+    raise RuntimeError(
+        "No se encontraron credenciales de Firebase. Define GOOGLE_APPLICATION_CREDENTIALS "
+        "con el path al archivo o FIREBASE_CREDENTIALS_JSON con su contenido."
+    )
 
 
 def get_firestore_client() -> firestore.Client:
@@ -114,12 +117,13 @@ def get_firestore_client() -> firestore.Client:
     try:
         firebase_admin.get_app()
     except ValueError:
-        cred_path = _ensure_service_account_credentials()
-        if cred_path:
-            cred = credentials.Certificate(cred_path)
-            firebase_admin.initialize_app(cred)
-        else:
-            firebase_admin.initialize_app()
+        try:
+            cred_path = _ensure_service_account_credentials()
+        except RuntimeError as exc:
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+        cred = credentials.Certificate(cred_path)
+        firebase_admin.initialize_app(cred)
 
     _firestore_client = firestore.client()
     return _firestore_client
