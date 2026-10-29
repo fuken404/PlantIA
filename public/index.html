@@ -3,84 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PlantIA · Monitoreo de plantas con IA</title>
-    <meta name="description" content="Humedad y temperatura de mis plantas en tiempo real, con consejos de cuidado generados por IA." />
+    <title>PlantIA · Registro de cultivo</title>
+    <meta name="description" content="Humedad del suelo y temperatura de mis plantas, medidas cada treinta minutos, con notas de cuidado redactadas por IA." />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
     <script src="/app.js" defer></script>
   </head>
   <body>
-    <header class="top">
-      <a class="brand" href="/">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c0-6 2-11 9-13-1 7-4 11-9 13Zm0 0C12 15 10 10 3 9c1 6 4 10 9 12Z" /></svg>
-        PlantIA
-      </a>
-      <nav>
-        <a href="/api/docs" data-i18n="api">API</a>
-        <a href="https://github.com/fuken404/PlantIA" target="_blank" rel="noreferrer">GitHub ↗</a>
-        <button id="lang" type="button" aria-label="Switch to English">EN</button>
-      </nav>
+    <header class="masthead">
+      <div class="masthead__row">
+        <p class="masthead__kicker" data-i18n="kicker">Registro de cultivo · vol. II</p>
+        <div class="langs" role="group" aria-label="Idioma / Language">
+          <button type="button" data-lang="es" lang="es">ES</button>
+          <span aria-hidden="true">/</span>
+          <button type="button" data-lang="en" lang="en">EN</button>
+        </div>
+      </div>
+      <h1 class="masthead__title">Plant<em>IA</em></h1>
+      <p class="masthead__lead" data-i18n="lead">
+        Dos plantas de interior medidas cada treinta minutos. Las lecturas viajan de un sensor a una API en
+        FastAPI, se archivan en Firestore y Gemini redacta la nota de cuidado.
+      </p>
+      <p class="masthead__meta"><span data-i18n="place">Bogotá · 2.640 m s. n. m.</span> — <span id="updated">…</span></p>
     </header>
 
-    <main>
-      <section class="intro">
-        <h1 data-i18n="title">Mis plantas, en tiempo real</h1>
-        <p data-i18n="lead">Un sensor mide la humedad del suelo y la temperatura; la API las guarda en Firestore y Gemini sugiere qué hacer.</p>
-      </section>
-
-      <div id="plants" class="plants" aria-live="polite">
-        <p class="muted" data-i18n="loading">Cargando lecturas…</p>
-      </div>
-
-      <section class="how">
-        <h2 data-i18n="howTitle">Cómo funciona</h2>
-        <ol class="flow">
-          <li><strong data-i18n="step1">Sensor</strong><span data-i18n="step1d">ESP32 o simulador cada 30 min</span></li>
-          <li><strong>FastAPI</strong><span data-i18n="step2d">valida y guarda la lectura</span></li>
-          <li><strong>Firestore</strong><span data-i18n="step3d">historial por planta</span></li>
-          <li><strong>Gemini</strong><span data-i18n="step4d">consejo de cuidado (con respaldo por reglas)</span></li>
-        </ol>
-      </section>
+    <main id="plates" aria-live="polite">
+      <p class="placeholder" data-i18n="loading">Revisando los sensores…</p>
     </main>
 
-    <footer class="foot">
-      <span data-i18n="footer">Hecho por</span> <a href="https://fuken404.dev">Maycol Fuquene</a>
+    <footer class="method">
+      <h2 data-i18n="methodTitle">Método</h2>
+      <ol>
+        <li><span data-i18n="m1">Un ESP32 —o el simulador, mientras tanto— envía humedad y temperatura cada 30 minutos.</span></li>
+        <li><span data-i18n="m2">FastAPI valida la llave del dispositivo y archiva la lectura en Firestore.</span></li>
+        <li><span data-i18n="m3">Gemini lee la lectura, el historial y el rango ideal y redacta una nota; si no responde, la escribe un asesor por reglas.</span></li>
+      </ol>
+      <p class="method__links">
+        <a href="/api/docs" data-i18n="docs">Documentación de la API</a> ·
+        <a href="https://github.com/fuken404/PlantIA" target="_blank" rel="noreferrer" data-i18n="code">Código fuente</a> ·
+        <span data-i18n="by">Cultivado por</span> <a href="https://fuken404.dev">Maycol Fuquene</a>
+      </p>
     </footer>
 
-    <template id="plant-card">
-      <article class="card">
-        <header class="card__head">
-          <div>
-            <h2 class="card__name"></h2>
-            <p class="card__species muted"></p>
-          </div>
-          <span class="badge"></span>
-        </header>
-        <div class="metrics">
-          <div class="metric" data-kind="humidity">
-            <span class="metric__label" data-i18n="humidity">Humedad del suelo</span>
-            <span class="metric__value"></span>
-            <div class="range"><div class="range__ideal"></div><div class="range__mark"></div></div>
-            <span class="metric__ideal muted"></span>
-          </div>
-          <div class="metric" data-kind="temperature">
-            <span class="metric__label" data-i18n="temperature">Temperatura</span>
-            <span class="metric__value"></span>
-            <div class="range"><div class="range__ideal"></div><div class="range__mark"></div></div>
-            <span class="metric__ideal muted"></span>
-          </div>
+    <template id="plate">
+      <article class="plate">
+        <div class="plate__stamp" aria-hidden="true"></div>
+        <div class="plate__left">
+          <p class="plate__number"></p>
+          <h2 class="plate__species"></h2>
+          <p class="plate__name"></p>
+
+          <dl class="label">
+            <div><dt data-i18n="humidity">Humedad del suelo</dt><dd class="v-humidity"></dd></div>
+            <div><dt data-i18n="temperature">Temperatura</dt><dd class="v-temperature"></dd></div>
+            <div><dt data-i18n="idealHumidity">Rango de humedad</dt><dd class="v-hrange"></dd></div>
+            <div><dt data-i18n="idealTemperature">Rango de temperatura</dt><dd class="v-trange"></dd></div>
+            <div><dt data-i18n="lastReading">Última lectura</dt><dd class="v-last"></dd></div>
+            <div><dt data-i18n="state">Estado</dt><dd class="v-state"></dd></div>
+          </dl>
         </div>
-        <figure class="chart">
-          <svg class="chart__svg" viewBox="0 0 300 80" preserveAspectRatio="none" role="img"></svg>
-          <figcaption class="muted">
-            <span class="dot dot--hum"></span><span data-i18n="humidity">Humedad del suelo</span>
-            <span class="dot dot--temp"></span><span data-i18n="temperature">Temperatura</span>
-            · <span data-i18n="last24">últimas 24 h</span>
-          </figcaption>
-        </figure>
-        <div class="advice">
-          <p class="advice__tip"></p>
-          <p class="advice__meta muted"></p>
+
+        <div class="plate__right">
+          <figure class="trace">
+            <svg class="trace__svg" viewBox="0 0 600 240" role="img"></svg>
+            <figcaption>
+              <span class="key key--hum"></span><span data-i18n="humidity">Humedad del suelo</span>
+              <span class="key key--temp"></span><span data-i18n="temperature">Temperatura</span>
+              <span class="key key--band"></span><span data-i18n="idealBand">rango ideal</span>
+            </figcaption>
+          </figure>
+
+          <blockquote class="note">
+            <p class="note__text"></p>
+            <footer class="note__sign"></footer>
+          </blockquote>
         </div>
       </article>
     </template>

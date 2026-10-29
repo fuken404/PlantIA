@@ -13,7 +13,7 @@ from .schemas import Advice, Plant, Reading, Thresholds
 
 DEMO_PLANTS = [
     Plant(
-        id='rosita', name='Rosita', species='Rosa (Rosa sp.)',
+        id='rosita', name='Rosita', species='Rosa chinensis',
         thresholds=Thresholds(humidity_min=40, humidity_max=70, temperature_min=15, temperature_max=28),
     ),
     Plant(
