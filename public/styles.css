@@ -1,0 +1,208 @@
+:root {
+  --bg: #f4f1e8;
+  --surface: #fbf9f3;
+  --line: #ddd6c4;
+  --text: #1f2a1f;
+  --muted: #6b7064;
+  --leaf: #3f7a4b;
+  --leaf-soft: rgb(63 122 75 / .12);
+  --water: #2f6c9a;
+  --sun: #c0782b;
+  --warn: #b7791f;
+  --danger: #b4432f;
+  --radius: 14px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121612;
+    --surface: #1a201a;
+    --line: #2b332b;
+    --text: #e3e8e0;
+    --muted: #8e978a;
+    --leaf: #8cc79a;
+    --leaf-soft: rgb(140 199 154 / .12);
+    --water: #79b3df;
+    --sun: #e3a35d;
+    --warn: #e2b04a;
+    --danger: #ef8b74;
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+a { color: inherit; }
+.muted { color: var(--muted); }
+
+.top, main, .foot {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  text-decoration: none;
+}
+
+.brand svg {
+  width: 26px;
+  height: 26px;
+  fill: var(--leaf);
+}
+
+.top nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: .9rem;
+}
+
+.top nav a { text-decoration: none; color: var(--muted); }
+.top nav a:hover { color: var(--text); }
+
+#lang {
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.intro { padding: 24px 0 32px; }
+.intro h1 { margin: 0 0 8px; font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -.02em; line-height: 1.1; }
+.intro p { margin: 0; max-width: 60ch; color: var(--muted); }
+
+.plants {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.card__head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.card__name { margin: 0; font-size: 1.35rem; }
+.card__species { margin: 2px 0 0; font-size: .9rem; font-style: italic; }
+
+.badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background: var(--leaf-soft);
+  color: var(--leaf);
+}
+.badge[data-status='attention'] { background: rgb(183 121 31 / .14); color: var(--warn); }
+.badge[data-status='critical'] { background: rgb(180 67 47 / .14); color: var(--danger); }
+.badge[data-status='none'] { background: var(--line); color: var(--muted); }
+
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.metric { display: grid; gap: 6px; }
+.metric__label { font-size: .8rem; color: var(--muted); }
+.metric__value { font-size: 1.9rem; font-weight: 650; letter-spacing: -.02em; line-height: 1; }
+.metric[data-kind='humidity'] .metric__value { color: var(--water); }
+.metric[data-kind='temperature'] .metric__value { color: var(--sun); }
+.metric__ideal { font-size: .75rem; }
+
+.range {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.range__ideal {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 3px;
+  background: var(--leaf-soft);
+  box-shadow: inset 0 0 0 1px var(--leaf);
+}
+.range__mark {
+  position: absolute;
+  top: -4px;
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--text);
+  transform: translateX(-50%);
+  transition: left .4s ease;
+}
+
+.chart { margin: 0; }
+.chart__svg { display: block; width: 100%; height: 80px; }
+.chart__svg .line { fill: none; stroke-width: 2; vector-effect: non-scaling-stroke; }
+.chart__svg .line--hum { stroke: var(--water); }
+.chart__svg .line--temp { stroke: var(--sun); }
+.chart figcaption { display: flex; align-items: center; gap: 6px; font-size: .75rem; margin-top: 6px; flex-wrap: wrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot--hum { background: var(--water); }
+.dot--temp { background: var(--sun); margin-left: 6px; }
+
+.advice {
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--leaf-soft);
+}
+.advice__tip { margin: 0 0 6px; }
+.advice__meta { margin: 0; font-size: .75rem; }
+
+.how { padding: 48px 0 24px; }
+.how h2 { font-size: 1.1rem; margin: 0 0 14px; }
+.flow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+.flow li {
+  display: grid;
+  gap: 2px;
+  padding: 14px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  counter-increment: paso;
+}
+.flow li::before { content: counter(paso, decimal-leading-zero); font-size: .7rem; color: var(--leaf); font-weight: 700; }
+.flow span { font-size: .85rem; color: var(--muted); }
+
+.foot { padding-top: 24px; padding-bottom: 40px; font-size: .85rem; color: var(--muted); }
+
+@media (max-width: 480px) {
+  .top nav a:first-child { display: none; }
+}

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PlantIA · Monitoreo de plantas con IA</title>
+    <meta name="description" content="Humedad y temperatura de mis plantas en tiempo real, con consejos de cuidado generados por IA." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="/">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c0-6 2-11 9-13-1 7-4 11-9 13Zm0 0C12 15 10 10 3 9c1 6 4 10 9 12Z" /></svg>
+        PlantIA
+      </a>
+      <nav>
+        <a href="/api/docs" data-i18n="api">API</a>
+        <a href="https://github.com/fuken404/PlantIA" target="_blank" rel="noreferrer">GitHub ↗</a>
+        <button id="lang" type="button" aria-label="Switch to English">EN</button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="intro">
+        <h1 data-i18n="title">Mis plantas, en tiempo real</h1>
+        <p data-i18n="lead">Un sensor mide la humedad del suelo y la temperatura; la API las guarda en Firestore y Gemini sugiere qué hacer.</p>
+      </section>
+
+      <div id="plants" class="plants" aria-live="polite">
+        <p class="muted" data-i18n="loading">Cargando lecturas…</p>
+      </div>
+
+      <section class="how">
+        <h2 data-i18n="howTitle">Cómo funciona</h2>
+        <ol class="flow">
+          <li><strong data-i18n="step1">Sensor</strong><span data-i18n="step1d">ESP32 o simulador cada 30 min</span></li>
+          <li><strong>FastAPI</strong><span data-i18n="step2d">valida y guarda la lectura</span></li>
+          <li><strong>Firestore</strong><span data-i18n="step3d">historial por planta</span></li>
+          <li><strong>Gemini</strong><span data-i18n="step4d">consejo de cuidado (con respaldo por reglas)</span></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span data-i18n="footer">Hecho por</span> <a href="https://fuken404.dev">Maycol Fuquene</a>
+    </footer>
+
+    <template id="plant-card">
+      <article class="card">
+        <header class="card__head">
+          <div>
+            <h2 class="card__name"></h2>
+            <p class="card__species muted"></p>
+          </div>
+          <span class="badge"></span>
+        </header>
+        <div class="metrics">
+          <div class="metric" data-kind="humidity">
+            <span class="metric__label" data-i18n="humidity">Humedad del suelo</span>
+            <span class="metric__value"></span>
+            <div class="range"><div class="range__ideal"></div><div class="range__mark"></div></div>
+            <span class="metric__ideal muted"></span>
+          </div>
+          <div class="metric" data-kind="temperature">
+            <span class="metric__label" data-i18n="temperature">Temperatura</span>
+            <span class="metric__value"></span>
+            <div class="range"><div class="range__ideal"></div><div class="range__mark"></div></div>
+            <span class="metric__ideal muted"></span>
+          </div>
+        </div>
+        <figure class="chart">
+          <svg class="chart__svg" viewBox="0 0 300 80" preserveAspectRatio="none" role="img"></svg>
+          <figcaption class="muted">
+            <span class="dot dot--hum"></span><span data-i18n="humidity">Humedad del suelo</span>
+            <span class="dot dot--temp"></span><span data-i18n="temperature">Temperatura</span>
+            · <span data-i18n="last24">últimas 24 h</span>
+          </figcaption>
+        </figure>
+        <div class="advice">
+          <p class="advice__tip"></p>
+          <p class="advice__meta muted"></p>
+        </div>
+      </article>
+    </template>
+  </body>
+</html>

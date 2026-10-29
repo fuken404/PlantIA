@@ -1,0 +1,23 @@
+# Envía una lectura simulada por planta cada 30 minutos para que la demo siempre tenga datos.
+name: Simulador de sensor
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reading:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python simulator/simulate.py
+        env:
+          PLANTIA_API_URL: ${{ secrets.PLANTIA_API_URL }}
+          PLANTIA_DEVICE_KEY: ${{ secrets.PLANTIA_DEVICE_KEY }}

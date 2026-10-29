@@ -1,0 +1,16 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secretos: nunca subir credenciales
+.env
+*firebase-adminsdk*.json
+*service-account*.json
+credentials*.json
+firmware/esp32/secrets.h
+
+# Herramientas
+.vercel/
+.DS_Store
