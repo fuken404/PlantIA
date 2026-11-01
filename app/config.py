@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     gemini_api_key: str = ''
     gemini_model: str = 'gemini-3.5-flash-lite'
-    gemini_timeout_seconds: int = 15
+    gemini_timeout_seconds: int = 30
 
     # Llave con la que el sensor o el simulador publican lecturas.
     device_api_key: str = ''

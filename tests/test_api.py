@@ -92,6 +92,15 @@ def test_consejo_se_reutiliza_dentro_del_ttl(client):
     assert client.gemini.calls == 1
 
 
+def test_tras_un_fallo_se_reintenta_gemini_con_la_siguiente_lectura(client):
+    client.gemini.fail = True
+    send(client)
+    assert client.get('/api/plants/rosita').json()['advice']['source'] == 'rules'
+    client.gemini.fail = False
+    send(client, humidity=50)
+    assert client.get('/api/plants/rosita').json()['advice']['source'] == 'gemini'
+
+
 def test_si_gemini_falla_responde_con_reglas(client):
     client.gemini.fail = True
     send(client, humidity=20)

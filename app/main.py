@@ -55,14 +55,17 @@ def require_device(settings: SettingsDep, x_device_key: Annotated[str | None, He
 
 def current_advice(plant: Plant, store: PlantStore, advisor: FallbackAdvisor,
                    settings: Settings, history: list[Reading]) -> Advice | None:
-    """Reutiliza el último consejo mientras sea reciente; si no, genera uno nuevo."""
+    """Reutiliza el último consejo mientras sea reciente; si no, genera uno nuevo.
+
+    Un consejo de respaldo por reglas solo vale para su lectura: con la siguiente se reintenta Gemini.
+    """
     reading = plant.last_reading
     if reading is None:
         return None
     cached = store.get_advice(plant.id)
     if cached and (
         cached.reading_at >= reading.recorded_at
-        or utcnow() - cached.generated_at < timedelta(minutes=settings.advice_ttl_minutes)
+        or (cached.source != 'rules' and utcnow() - cached.generated_at < timedelta(minutes=settings.advice_ttl_minutes))
     ):
         return cached
     content, source = advisor.advise(plant, reading, history)
